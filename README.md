@@ -234,13 +234,4 @@ jobs:
 ```
 </details>
 
-## Debugging your config locally
-This action is a basic wrapper around my `@UnistamGroup/ftp-deploy` npm package. To test your config you can install [@UnistamGroup/ftp-deploy](https://github.com/UnistamGroup/ftp-deploy) and then convert your config to a yml action. Settings are one-to-one, this action is only a wrapper.
 
-## Contributing to this project
-To test this action locally you will need to setup **docker** and **act** to run a environment similar to the one github uses for actions.
-- Download/install docker for windows, make sure it is running
-- `choco install act-cli` install [act](https://github.com/nektos/act)
-- Install the npm package using `npm install --dev-only @UnistamGroup/ftp-deploy`
-- Update the `deploy` script in `package.json` with a actual server/username/password
-- You can run the script using the following command `npm run deploy` (run this in the folder that has the `package.json` file)
