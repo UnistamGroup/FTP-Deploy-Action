@@ -18,7 +18,7 @@
     "ftp",
     "ftps"
   ],
-  "author": "Sam Kirkland",
+  "author": "Unistam Technology Services",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.6",
