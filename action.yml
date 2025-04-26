@@ -1,6 +1,6 @@
 name: 'FTP Deploy'
 description: 'Automate deploying websites and more with this GitHub action'
-author: 'Sam Kirkland'
+author: 'Unistam Technology Services'
 inputs:
     server:
       required: true
