@@ -21,32 +21,40 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
+          languages: all # Scan all supported languages
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          language: ${{ matrix.language }}
+          language: all
 
       - name: Upload SARIF results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: ${{ github.workspace }}/codeql-report.sarif
+          sarif_file: ${{ github.workspace }}/codeql-report-${{ matrix.language }}.sarif #separate sarif
 
       - name: Check for vulnerabilities
         id: check_vulns
         run: |
-          # Use jq to parse the SARIF file and count the number of results with severity >= "high"
-          VULN_COUNT=$(jq '.runs[].results |  map(select(.level == "error" or .level == "warning")) | length' ${{ github.workspace }}/codeql-report.sarif)
-          echo "VULN_COUNT=$VULN_COUNT" >> $GITHUB_ENV
-          if [ $VULN_COUNT -gt 0 ]; then
+          # Initialize a variable to store the total count of vulnerabilities
+          TOTAL_VULN_COUNT=0
+          # Loop through each language in the matrix
+          for LANGUAGE in ${{ matrix.language }}; do
+            # Use jq to parse the SARIF file for the current language
+            VULN_COUNT=$(jq ".runs[].results |  map(select(.level == \"error\" or .level == \"warning\")) | length" ${{ github.workspace }}/codeql-report-$LANGUAGE.sarif)
+            echo "VULN_COUNT_$LANGUAGE=$VULN_COUNT" >> $GITHUB_ENV
+             # Add the vulnerabilities for the current language to the total count
+            TOTAL_VULN_COUNT=$((TOTAL_VULN_COUNT + VULN_COUNT))
+          done
+          echo "TOTAL_VULN_COUNT=$TOTAL_VULN_COUNT" >> $GITHUB_ENV
+          if [ $TOTAL_VULN_COUNT -gt 0 ]; then
             echo "::set-output name=vulnerable::true"
-            echo "Vulnerabilities detected: $VULN_COUNT"
-            echo "::warning title=Security Vulnerabilities Detected!::Code scanning has found $VULN_COUNT vulnerabilities in the repository. Please check the Code Scanning alerts in GitHub: ${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
+            echo "Total vulnerabilities detected: $TOTAL_VULN_COUNT"
+            echo "::warning title=Security Vulnerabilities Detected!::Code scanning has found $TOTAL_VULN_COUNT vulnerabilities in the repository. Please check the Code Scanning alerts in GitHub: ${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
           else
             echo "::set-output name=vulnerable::false"
             echo "No vulnerabilities detected."
           fi
     strategy:
       matrix:
-        language: [ 'javascript-typescript', 'python' ]
+        language: [ 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'php', 'python', 'ruby', 'swift', 'dart', 'kotlin' ] # Add all supported languages
